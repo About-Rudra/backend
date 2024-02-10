@@ -133,7 +133,7 @@ app.get("/candidate ", (req, res) => {
 
 //  student registration 
 app.post("/register", async (req, res) => {
-    const email = req.body.username;
+    const email = req.body.email;
     const password = req.body.password;
   
     try {
@@ -142,7 +142,7 @@ app.post("/register", async (req, res) => {
       ]);
   
       if (checkResult.rows.length > 0) {
-        req.redirect("/login");
+        // req.redirect("/login");
       } else {
         bcrypt.hash(password, saltRounds, async (err, hash) => {
           if (err) {
@@ -155,7 +155,7 @@ app.post("/register", async (req, res) => {
             const user = result.rows[0];
             req.login(user, (err) => {
               console.log("success");
-              res.redirect("/details");
+              // res.redirect("/details");
             });
           }
         });
