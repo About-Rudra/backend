@@ -178,6 +178,7 @@ app.post("/register", async (req, res) => {
 app.post("/studentdetails", async (req, res) => {
   const reqPayload = req.body;
   console.log('Data received: ', reqPayload);
+  const name = reqPayload.name;
   const email = reqPayload.email;
   const Qualification = reqPayload.qualification;
   const Contact_No = reqPayload.contactno;
@@ -186,11 +187,11 @@ app.post("/studentdetails", async (req, res) => {
   const skills = reqPayload.skills;
   const Achievements = reqPayload.achievements;
   const Interested_Internship = reqPayload.interestedinternship;
-  const name = reqPayload.name;
+  // const name = reqPayload.name;
 
   const result = await db.query(
-    "INSERT INTO students ( email , Qualification , Contact_No, locations , College_Name, skills, Achievements, Interested_Internship, s_name) VALUES( $1, $2, $3, $4, $5, $6, $7, $8, $9);",
-    [ email, Qualification, Contact_No, locations, College_Name, skills, Achievements, Interested_Internship,name]
+    "INSERT INTO students_details ( name ,email , Qualification , Contact_No, locations , College_Name, skills, Achievements, Interested_Internship ) VALUES( $1, $2, $3, $4, $5, $6, $7, $8, $9);",
+    [ name ,email, Qualification, Contact_No, locations, College_Name, skills, Achievements, Interested_Internship]
   );
 console.log(result);
 console.log(email);
@@ -322,7 +323,42 @@ app.post("/applyforinternship", async (req, res) => {
   }
 });
 
+// STUDENT APPLY FOR INTERNSHIP POST REQUEST 
 
+app.post("/applyforinternship", async (req, res) => {
+    try {
+      const reqPayload = req.body;
+      console.log('Internship Application Data received: ', reqPayload);
+  
+      const student_name = reqPayload.studentname;
+      const qualification = reqPayload.qualification;
+      const contact_no = reqPayload.contactno;
+      const college_name = reqPayload.collegename;
+      const skills_achievements = reqPayload.skills;
+      const bio = reqPayload.bio;
+      const email = reqPayload.email;
+      const locations = reqPayload.locations;
+      const where_internship = reqPayload.interestedinternship;
+  
+      // Insert the internship application details into the database
+      const result = await db.query(
+        "INSERT INTO internship_application (student_name, qualification, contact_no, college_name, skills_achievements, bio, email, locations, where_internship) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);",
+        [student_name, qualification, contact_no, college_name, skills_achievements, bio, email, locations, where_internship]
+      );
+  
+      console.log(result);
+      console.log(email);
+  
+      // Notify the company about the internship application (you can implement this as needed)
+  
+      res.status(200).json({ success: "Internship application submitted successfully!" });
+    } catch (error) {
+      console.error("Error applying for internship:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+  
+  
 
 
 
@@ -558,7 +594,7 @@ app.post("/companydetails", async (req, res) => {
 
 
    const result = await db.query(
-     "INSERT INTO company (company_name , qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain) VALUES( $1, $2, $3, $4,$5, $6, $7, $8, $9);",
+     "INSERT INTO company_details (company_name , qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain) VALUES( $1, $2, $3, $4,$5, $6, $7, $8, $9);",
      [company_name , qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain]
    );
  console.log(result);
@@ -579,4 +615,42 @@ app.post("/companydetails", async (req, res) => {
     app.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
+
+    // COMPANY POST REQUEST TO POST INTERNSHIP
+
+app.post("/postinternship", async (req, res) => {
+  try {
+    const reqPayload = req.body;
+    console.log('Internship Post Data received: ', reqPayload);
+
+    const company_name = reqPayload.companyname;
+    const qualification_required = reqPayload.qualification;
+    const contact_no = reqPayload.contactnumber;
+    const position_name = reqPayload.position;
+    const skills_required = reqPayload.skills;
+    const job_description = reqPayload.jd;
+    const email = reqPayload.email;
+    const locations = reqPayload.location;
+    const interested_domain = reqPayload.interestedinternship;
+
+    // Insert the internship post details into the database
+    const result = await db.query(
+      "INSERT INTO internship_post (company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);",
+      [company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain]
+    );
+
+    console.log(result);
+    console.log(email);
+
+    // Notify students about the new internship opportunity (you can implement this as needed)
+
+    res.status(200).json({ success: "Internship posted successfully!" });
+  } catch (error) {
+    console.error("Error posting internship:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
     
