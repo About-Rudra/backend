@@ -213,10 +213,10 @@ console.log(email);
 // manual registration verification using password
   passport.use(
     "local",
-    new Strategy(async function verify(username, password, cb) {
+    new Strategy(async function verify(email, password, cb) {
       try {
         const result = await db.query("SELECT * FROM candidate WHERE email = $1 ", [
-          username,
+          email,
         ]);
         if (result.rows.length > 0) {
           const user = result.rows[0];
@@ -286,6 +286,41 @@ console.log(email);
     passport.deserializeUser((user, cb) => {
       cb(null, user);
     });
+
+// STUDENT APPLY FOR INTERNSHIP POST REQUEST 
+
+app.post("/applyforinternship", async (req, res) => {
+  try {
+    const reqPayload = req.body;
+    console.log('Internship Application Data received: ', reqPayload);
+
+    const student_name = reqPayload.studentname;
+    const qualification = reqPayload.qualification;
+    const contact_no = reqPayload.contactno;
+    const college_name = reqPayload.collegename;
+    const skills_achievements = reqPayload.skills;
+    const bio = reqPayload.bio;
+    const email = reqPayload.email;
+    const locations = reqPayload.locations;
+    const where_internship = reqPayload.interestedinternship;
+
+    // Insert the internship application details into the database
+    const result = await db.query(
+      "INSERT INTO internship_application (student_name, qualification, contact_no, college_name, skills_achievements, bio, email, locations, where_internship) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);",
+      [student_name, qualification, contact_no, college_name, skills_achievements, bio, email, locations, where_internship]
+    );
+
+    console.log(result);
+    console.log(email);
+
+    // Notify the company about the internship application (you can implement this as needed)
+
+    res.status(200).json({ success: "Internship application submitted successfully!" });
+  } catch (error) {
+    console.error("Error applying for internship:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 
 
@@ -378,7 +413,7 @@ app.get("/recruiter ", (req, res) => {
 
 // company registration 
 app.post("/register2", async (req, res) => {
-    const email = req.body.username;
+    const email = req.body.email;
     const password = req.body.password;
   
     try {
@@ -413,10 +448,10 @@ app.post("/register2", async (req, res) => {
 // manual registration verification using password
 passport.use(
   "local",
-  new Strategy(async function verify(username, password, cb) {
+  new Strategy(async function verify(email, password, cb) {
     try {
       const result = await db.query("SELECT * FROM recruiter WHERE email = $1 ", [
-        username,
+        email,
       ]);
       if (result.rows.length > 0) {
         const user = result.rows[0];
@@ -496,22 +531,47 @@ passport.use(
 
 
 
- app.post("/companydetails", async (req, res) => {
+//  app.post("/companydetails", async (req, res) => {
 
-    const company_desciption= req.body.jd;
-    const company_city = req.body.location;
-    const industry = req.body.interesteddomain;
+//     const company_desciption= req.body.jd;
+//     const company_city = req.body.location;
+//     const industry = req.body.interesteddomain;
 
-    const result = await db.query(
-      "INSERT INTO company (company_desciption, company_city, industry ) VALUES( $1, $2, $3);",
-      [ company_desciption, company_city, industry]
-    );
-  console.log(result);
+//     const result = await db.query(
+//       "INSERT INTO company (company_desciption, company_city, industry ) VALUES( $1, $2, $3);",
+//       [ company_desciption, company_city, industry]
+//     );
+//   console.log(result);
+
+app.post("/companydetails", async (req, res) => {
+  const reqPayload = req.body;
+ console.log('Data received: ', reqPayload);
+ const company_name = reqPayload.companyname;
+ const qualification_required  = reqPayload.qualification;
+ const contact_no  = reqPayload.contactnumber;
+ const  position_name  = reqPayload.position;
+ const skills_required  = reqPayload.skills;
+ const job_description  = reqPayload.jd;
+ const email  = reqPayload.email;
+ const locations = reqPayload.location;
+ const interested_domain  = reqPayload.interesteddomain;
+
+
+   const result = await db.query(
+     "INSERT INTO company (company_name , qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain) VALUES( $1, $2, $3, $4,$5, $6, $7, $8, $9);",
+     [company_name , qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain]
+   );
+ console.log(result);
+ console.log(email);
+
+ res.sendStatus(200);
+ });
+
    // const id = result.rows[0].id;
    // currentUserId = id;
   
     // res.redirect("/explore2");
-  });
+  // });
 
 // COMPANY DETAILS EDIT POST REQUEST
 
