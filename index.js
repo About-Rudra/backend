@@ -46,44 +46,6 @@ const db = new pg.Client({
 });
 db.connect();
 
-//   STUDENTS
-
-// home page 
-app.get("/", (req, res) => {
-    res.render("home");
-  });
-
-// are you a 
-app.get("/areyoua ", (req, res) => {
-  res.render("are you a ");
-});
-
-// redirect of candidate
-app.get("/candidate ", (req, res) => {
-  res.render("register");
-});
-
-
-// login page
-  app.get("/login", (req, res) => {
-    res.render("login");
-  });
-  
-// register page 
-  app.get("/register", (req, res) => {
-    res.render("register");
-  });
-
-// logout page 
- // app.get("/logout", (req, res) => {
-  //  req.logout(function (err) {
-   //   if (err) {
-   //     return next(err);
-  //    }
-    // res.redirect("/");
-  //  });
-  //})
-  
 
 // user being authenticated using O AUTH
   app.get("/explore", (req, res) => {
@@ -123,12 +85,48 @@ app.get("/candidate ", (req, res) => {
 //   P  O  S  T         R  E Q  U  E  S  T  S
 
 // login with password
-  app.post(
-    "/login",
-    passport.authenticate("local", {
-      successRedirect: "/explore",
-      failureRedirect: "/login",
-    })
+  app.post("/login",
+    // passport.authenticate("local", {
+    //   successRedirect: "/explore", //should redirect to profile page
+    //   failureRedirect: "/login",
+    // }
+    async(req, res) => {
+      const email = req.body.email;
+      const loginPassword = req.body.password;
+    
+      try {
+        const checkResult = await db.query("SELECT password FROM candidate WHERE email = $1", 
+              [email] );
+        
+        if (checkResult.rows.length > 0) {
+          const hashedPassword = checkResult.rows[0].password;
+          console.log("hashedPassword: " + hashedPassword);
+          bcrypt.compare(loginPassword, hashedPassword, (err, result) => {
+            if (err) {
+              console.error('Error comparing passwords:', err);
+              // Handle error
+              res.sendStatus(500);
+            } else if (result) {
+              // Passwords match, user authentication successful
+              console.log('Password matches!');
+              // Proceed with login
+              res.sendStatus(200);
+            } else {
+              // Passwords do not match, user authentication failed
+              console.log('Password does not match!');
+              // Handle incorrect password
+              res.sendStatus(401);
+            }
+          });
+
+        } else {
+          res.sendStatus(401);
+        }
+        
+      }catch (err) {
+        console.log(err);
+      }
+    }
   );
 
 //  student registration 
@@ -142,11 +140,12 @@ app.post("/register", async (req, res) => {
       ]);
   
       if (checkResult.rows.length > 0) {
-        // req.redirect("/login");
+        res.sendStatus(400);
       } else {
         bcrypt.hash(password, saltRounds, async (err, hash) => {
           if (err) {
             console.error("Error hashing password:", err);
+            res.sendStatus(500);
           } else {
             const result = await db.query(
               "INSERT INTO candidate (email, password) VALUES ($1, $2) RETURNING *",
@@ -155,6 +154,7 @@ app.post("/register", async (req, res) => {
             const user = result.rows[0];
             req.login(user, (err) => {
               console.log("success");
+              res.sendStatus(200);
               // res.redirect("/details");
             });
           }
@@ -358,7 +358,36 @@ app.post("/applyforinternship", async (req, res) => {
     }
   });
   
+  app.get("/studentdetails/:email", async (req, res) => {
+
+    try {
+      const email = req.params.email;
+      console.log("Email: " + email);
   
+      // Fetch student details from the database based on the student email
+      const result = await db.query(
+        "SELECT name, email, qualification, contact_no, locations, college_name, skills, achievements, interested_internship FROM students_details WHERE email = $1",
+        [email]
+      );
+  
+      // Check if a student with the given email exists
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+  
+      // Extract student details from the query result
+      const studentDetails = result.rows[0];
+  
+      // Send the student details as a response
+      res.status(200).json(studentDetails);
+      console.log('Student Details:', studentDetails );
+    } catch (error) {
+      console.error("Error fetching student details:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+
+
 
 
 
@@ -371,22 +400,6 @@ app.post("/applyforinternship", async (req, res) => {
 
 // company home page
 
-// redirect to recruiter 
-app.get("/recruiter ", (req, res) => {
-    res.render("register2");
-  });
-  
-  // login page
-    app.get("/login2", (req, res) => {
-      res.render("login2");
-    });
-    
-  // register page 
-    app.get("/register2", (req, res) => {
-      res.render("register2");
-    });
-  
-   
   // logout page 
     app.get("/logout2", (req, res) => {
       req.logout(function (err) {
