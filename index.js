@@ -664,6 +664,36 @@ app.post("/postinternship", async (req, res) => {
   }
 });
 
+app.get("/companydetails/:email", async (req, res) => {
+
+  try {
+    const email = req.params.email;
+    console.log("Email: " + email);
+
+    // Fetch company details from the database based on the company_id
+    const result = await db.query(
+      "SELECT company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain FROM company WHERE email = $1",
+      [email]
+    );
+
+    // Check if a company with the given company_id exists
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    // Extract company details from the query result
+    const companyDetails = result.rows[0];
+
+    // Send the company details as a response
+    res.status(200).json(companyDetails);
+    console.log('Company Details:', companyDetails );
+  } catch (error) {
+    console.error("Error fetching company details:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 
 
     
