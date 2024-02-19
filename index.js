@@ -171,26 +171,32 @@ app.post("/register", async (req, res) => {
 
 // CANDIDATE DETAILS POST REQUEST
 app.post("/studentdetails", async (req, res) => {
-  const reqPayload = req.body;
-  console.log('Data received: ', reqPayload);
-  const name = reqPayload.name;
-  const email = reqPayload.email;
-  const Qualification = reqPayload.qualification;
-  const Contact_No = reqPayload.contactno;
-  const locations = reqPayload.locations;
-  const College_Name = reqPayload.collegename;
-  const skills = reqPayload.skills;
-  const Achievements = reqPayload.achievements;
-  const Interested_Internship = reqPayload.interestedinternship;
-  // const name = reqPayload.name;
+  try {
+    const reqPayload = req.body;
+    console.log('Data received: ', reqPayload);
+    const name = reqPayload.name;
+    const email = reqPayload.email;
+    const Qualification = reqPayload.qualification;
+    const Contact_No = reqPayload.contactno;
+    const locations = reqPayload.locations;
+    const College_Name = reqPayload.collegename;
+    const skills = reqPayload.skills;
+    const Achievements = reqPayload.achievements;
+    const Interested_Internship = reqPayload.interestedinternship;
+    // const name = reqPayload.name;
 
-  const result = await db.query(
-    "INSERT INTO students_details ( name ,email , Qualification , Contact_No, locations , College_Name, skills, Achievements, Interested_Internship ) VALUES( $1, $2, $3, $4, $5, $6, $7, $8, $9);",
-    [name, email, Qualification, Contact_No, locations, College_Name, skills, Achievements, Interested_Internship]
-  );
-  console.log(result);
-  console.log(email);
-  res.sendStatus(200);
+    const result = await db.query(
+      "INSERT INTO students_details ( name ,email , Qualification , Contact_No, locations , College_Name, skills, Achievements, Interested_Internship ) VALUES( $1, $2, $3, $4, $5, $6, $7, $8, $9);",
+      [name, email, Qualification, Contact_No, locations, College_Name, skills, Achievements, Interested_Internship]
+    );
+    console.log(result);
+    console.log(email);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Error posting internship:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+
 });
 
 
@@ -599,28 +605,35 @@ app.post("/register2", async (req, res) => {
 
 // COMPANY DETAILS POST REQUEST
 app.post("/companydetails", async (req, res) => {
-  const reqPayload = req.body;
-  console.log('Data received: ', reqPayload);
+  try {
+    const reqPayload = req.body;
+    console.log('Data received: ', reqPayload);
 
-  const company_name = reqPayload.companyname;
-  const qualification_required = reqPayload.qualification;
-  const contact_no = reqPayload.contactnumber;
-  const position_name = reqPayload.position;
-  const skills_required = reqPayload.skills;
-  const job_description = reqPayload.jd;
-  const email = reqPayload.email;
-  const locations = reqPayload.location;
-  const interested_domain = reqPayload.interesteddomain;
+    const company_name = reqPayload.companyname;
+    const qualification_required = reqPayload.qualification;
+    const contact_no = reqPayload.contactnumber;
+    const position_name = reqPayload.position;
+    const skills_required = reqPayload.skills;
+    const job_description = reqPayload.jd;
+    const email = reqPayload.email;
+    const locations = reqPayload.location;
+    const interested_domain = reqPayload.interesteddomain;
 
 
-  const result = await db.query(
-    "INSERT INTO company_details (company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);",
-    [company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain]
-  );
-  console.log(result);
-  console.log(email);
+    const result = await db.query(
+      "INSERT INTO company_details (company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);",
+      [company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain]
+    );
+    console.log(result);
+    console.log(email);
 
-  res.sendStatus(200);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Error posting internship:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+
+
 
 });
 
@@ -727,3 +740,87 @@ app.get("/internship-application/:internshipId", async (req, res) => {
   }
 });
 
+//put api for edit page for candidate
+// student details PUT REQUEST
+
+app.put("/editstudentdetails/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+    const reqPayload = req.body;
+    console.log('Data received for PUT with email ${email}:', reqPayload);
+
+    // Extract necessary details from the request payload
+    // const { name, qualification, contact_no, locations, college_name, skills, achievements, interested_internship } = reqPayload;
+
+    const name = reqPayload.name;
+    const qualification = reqPayload.qualification;
+    const contact_no = reqPayload.contactno;
+    const locations = reqPayload.locations;
+    const college_name = reqPayload.collegename;
+    const skills = reqPayload.skills;
+    const achievements = reqPayload.achievements;
+    const interested_internship = reqPayload.interestedinternship;
+
+    // Check if the required fields are present in the request payload
+    if (!name || !qualification || !contact_no || !locations || !college_name || !skills || !achievements || !interested_internship) {
+      return res.status(400).json({ error: "All fields are required for a PUT request" });
+    }
+
+    // Update the student details in the database based on the email in the path
+    const result = await db.query(
+      "UPDATE students_details SET name = $1, qualification = $2, contact_no = $3, locations = $4, college_name = $5, skills = $6, achievements = $7, interested_internship = $8, email =$9 WHERE email = $9 RETURNING *;",
+      [name, qualification, contact_no, locations, college_name, skills, achievements, interested_internship, email]
+    );
+
+    const updatedStudent = result.rows[0];
+    console.log("Updated student details:", updatedStudent);
+
+    res.status(200).json(updatedStudent);
+  } catch (error) {
+    console.error("Error updating student details:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+//put api for edit page for company
+app.put("/companydetails/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+    const reqPayload = req.body;
+    console.log('Data received for PUT with email ${email}:', reqPayload);
+
+    // Extract necessary details from the request payload
+    // const { company_name, qualification_required, contact_no, position_name, skills_required, job_description, locations, interested_domain } = reqPayload;
+
+    const company_name = reqPayload.companyname;
+    const qualification_required = reqPayload.qualification;
+    const contact_no = reqPayload.contactnumber;
+    const position_name = reqPayload.position;
+    const skills_required = reqPayload.skills;
+    const job_description = reqPayload.jd;
+    const company_email = reqPayload.email;
+    const locations = reqPayload.location;
+    const interested_domain = reqPayload.interesteddomain;
+
+    console.log("company name is" + company_name)
+
+    // Check if the required fields are present in the request payload
+    if (!company_name || !qualification_required || !contact_no || !position_name || !skills_required || !job_description || !locations || !interested_domain) {
+      return res.status(400).json({ error: "All fields are required for a PUT request" });
+    }
+
+    // Update the company details in the database based on the email in the path
+    const result = await db.query(
+      "UPDATE company_details SET company_name = $1, qualification_required = $2, contact_no = $3, position_name = $4, skills_required = $5, job_description = $6, locations = $7, interested_domain = $8 WHERE email = $9 RETURNING *;",
+      [company_name, qualification_required, contact_no, position_name, skills_required, job_description, locations, interested_domain, email]
+    );
+
+    const updatedCompany = result.rows[0];
+    console.log("Updated company details:", updatedCompany);
+
+    res.status(200).json(updatedCompany);
+  } catch (error) {
+    console.error("Error updating company details:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
