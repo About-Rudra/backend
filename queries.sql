@@ -6,7 +6,7 @@ password VARCHAR(100)
 )
 
 -- students details table --
-CREATE TABLE students(
+CREATE TABLE students_details(
 candidate_id SERIAL ,
 name VARCHAR(40),
 email VARCHAR(100) NOT NULL UNIQUE PRIMARY KEY,
@@ -16,7 +16,8 @@ locations VARCHAR (40),
 college_name VARCHAR(100),
 skills TEXT,
 achievements TEXT,
-Interested_Internship VARCHAR (40)
+Interested_Internship VARCHAR (40),
+profile_photo VARCHAR(300)
 )
 
 -- company authentication --
@@ -72,7 +73,10 @@ CREATE TABLE internship_post (
   interested_domain VARCHAR(255)
 );
 
-
-
-
+-- orignal query
+CREATE TABLE images (
+    id SERIAL PRIMARY KEY,
+    file_path VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 

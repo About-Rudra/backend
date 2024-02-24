@@ -359,7 +359,7 @@ app.get("/studentdetails/:email", async (req, res) => {
 
     // Fetch student details from the database based on the student email
     const result = await db.query(
-      "SELECT name, email, qualification, contact_no, locations, college_name, skills, achievements, interested_internship FROM students_details WHERE email = $1",
+      "SELECT name, email, qualification, contact_no, locations, college_name, skills, achievements, interested_internship, profile_photo FROM students_details WHERE email = $1",
       [email]
     );
 
@@ -824,3 +824,53 @@ app.put("/companydetails/:email", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+//post images
+
+import multer from 'multer';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+      
+// Set up multer storage configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Specify the directory where uploaded files will be stored
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`); // Specify the file name
+  }
+}); 
+
+const upload = multer({ storage });
+
+// Define POST endpoint for uploading images
+app.post('/candidateupload/:email', upload.single('image'), async (req, res) => {
+  try {
+    // If file is not present in the request
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    const fileName = req.file.filename;
+    const email = req.params.email;
+    console.log("Request email: " + email);
+    console.log("File name: " + fileName);
+  
+    // // Get the directory name of the current module file
+    // const __dirname = dirname(fileURLToPath(import.meta.url));
+    // // File path of the uploaded image
+    // const filePath = join(__dirname, 'uploads', req.file.filename);
+
+    // Insert the file path into the database
+    const result = await db.query('UPDATE students_details SET profile_photo = $1 WHERE email = $2;',
+      [fileName, email]);
+    res.status(201).json({ message: 'File uploaded successfully', imageName: fileName });
+  
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static('uploads'));
