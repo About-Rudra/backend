@@ -334,7 +334,7 @@ app.post("/internship-application", async (req, res) => {
 });
 
 // get internship applied by student
-app.get("/internship-application/candidate/:email", async (req, res) => {
+app.get("/internship-application/candidate/:email", async (req, res) => { 
   try {
     const candidate_email = req.params.email;
     // Retrieve specific internship post information from the database
@@ -649,7 +649,7 @@ app.get("/companydetails/:email", async (req, res) => {
 
     // Fetch company details from the database based on the student email
     const result = await db.query(
-      'SELECT company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain FROM company_details WHERE email = $1',
+      'SELECT company_name, qualification_required, contact_no, position_name, skills_required, job_description, email, locations, interested_domain, profile_photo FROM company_details WHERE email = $1',
       [email]
     );
 
@@ -844,7 +844,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Define POST endpoint for uploading images
+// Define POST endpoint for uploading images for candidate
 app.post('/candidateupload/:email', upload.single('image'), async (req, res) => {
   try {
     // If file is not present in the request
@@ -864,6 +864,8 @@ app.post('/candidateupload/:email', upload.single('image'), async (req, res) => 
     // Insert the file path into the database
     const result = await db.query('UPDATE students_details SET profile_photo = $1 WHERE email = $2;',
       [fileName, email]);
+      const result1 = await db.query('UPDATE internship_application SET profile_photo = $1 WHERE email = $2;',
+      [fileName, email]);
     res.status(201).json({ message: 'File uploaded successfully', imageName: fileName });
   
   } catch (error) {
@@ -874,3 +876,27 @@ app.post('/candidateupload/:email', upload.single('image'), async (req, res) => 
 
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static('uploads'));
+
+
+// Define POST endpoint for uploading images for company
+app.post('/companyupload/:email', upload.single('image'), async (req, res) => {
+  try {
+    // If file is not present in the request
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    const fileName = req.file.filename;
+    const email = req.params.email;
+    console.log("Request email: " + email);
+    console.log("File name: " + fileName);
+    const result = await db.query('UPDATE company_details SET profile_photo = $1 WHERE email = $2;',
+      [fileName, email]);
+      const result1 = await db.query('UPDATE internship_post SET profile_photo = $1 WHERE email = $2;',
+      [fileName, email]);
+    res.status(201).json({ message: 'File uploaded successfully', imageName: fileName });
+  
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
