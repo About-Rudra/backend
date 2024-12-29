@@ -35,19 +35,20 @@ app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// database connection with securing data using environment variables 
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
+const { Client } = require('pg'); // Already imported
+const db = new Client({
+  connectionString: process.env.PG_DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
+
 db.connect();
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
 
 
 //   P  O  S  T         R  E Q  U  E  S  T  S
