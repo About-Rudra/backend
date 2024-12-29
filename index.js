@@ -1,4 +1,3 @@
-//console.log("GANPATI BAPPA MORAYA");
 
 //packages
 import express from "express";
@@ -50,49 +49,11 @@ app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-// user being authenticated using O AUTH
-// app.get("/explore", (req, res) => {
-//   console.log(req.user);
-//   if (req.isAuthenticated()) {
-//     res.render("explore");
-//   } else {
-//     res.redirect("/login");
-//   }
-// });
-
-// signing up with Google
-// app.get(
-// "/auth/google",
-// passport.authenticate("google", {
-//   scope: ["profile", "email"],
-// })
-// );
-
-// user after being authenticated using O AUTH
-// app.get(
-// "/auth/google/explore",
-// passport.authenticate("google", {
-//     successRedirect: "/studentdetails",
-//     failureRedirect: "/login",
-// })   
-// );
-
-// logout page
-// app.get("/logout", (req , res ) => {
-//   req.logout((err) => {
-//     if (err) console.log(err);
-//     res.redirect("/");
-//   });
-// });
 
 //   P  O  S  T         R  E Q  U  E  S  T  S
 
 // login with password
 app.post("/login",
-  // passport.authenticate("local", {
-  //   successRedirect: "/explore", //should redirect to profile page
-  //   failureRedirect: "/login",
-  // }
   async (req, res) => {
     const email = req.body.email;
     const loginPassword = req.body.password;
@@ -200,87 +161,6 @@ app.post("/studentdetails", async (req, res) => {
 });
 
 
-// CANDIDATE DETAILS EDIT POST REQUEST
-
-
-// manual registration verification using password
-// passport.use(
-//   "local",
-//   new Strategy(async function verify(email, password, cb) {
-//     try {
-//       const result = await db.query("SELECT * FROM candidate WHERE email = $1 ", [
-//         email,
-//       ]);
-//       if (result.rows.length > 0) {
-//         const user = result.rows[0];
-//         const storedHashedPassword = user.password;
-//         bcrypt.compare(password, storedHashedPassword, (err, valid) => {
-//           if (err) {
-//             //Error with password check
-//             console.error("Error comparing passwords:", err);
-//             return cb(err);
-//           } else {
-//             if (valid) {
-//               //Passed password check
-//               return cb(null, user);
-//             } else {
-//               //Did not pass password check
-//               return cb(null, false);
-//             }
-//           }
-//         });
-//       } else {
-//         return cb("User not found");
-//       }
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   })
-// );
-
-// O AUTH verification 
-// passport.use( 
-//   "google",
-//    new GoogleStrategy(
-//     {
-//     clientID: process.env.GOOGLE_CLIENT_ID,
-//     clientSecret: process.env.GOOGLE_CLIENT_SECRET, 
-//     callbackURL: "http://localhost:3000/auth/google/explore",
-//     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
-//   }, 
-//   async (accessToken, refreshToken, profile, cb) => {
-
-//     try {
-//     console.log(profile);
-//       const result = await db.query("SELECT * FROM candidate WHERE email = $1", [
-//       profile.email,
-//       ]);
-//         if (result.rows.length === 0) {
-//           const newUser = await db.query(
-//           "INSERT INTO candidate (email, password) VALUES ($1, $2)",
-//         [profile.email, "google"] 
-//         );
-//         return cb(null, newUser.rows[0]);   
-//         } else {
-//           //Already existing 
-//           return cb(null, result.rows[0]);
-//         }
-//     } catch (err) { 
-//       return cb(err);
-//     }
-//   }
-//   )
-//   );
-
-//   passport.serializeUser((user, cb) => {
-//     cb(null, user);
-//   });
-
-//   passport.deserializeUser((user, cb) => {
-//     cb(null, user);
-//   });
-
-
 // get company posted internship for student to apply
 app.get("/internship", async (req, res) => {
   try {
@@ -384,61 +264,6 @@ app.get("/studentdetails/:email", async (req, res) => {
 
 //   C O M P A N Y 
 
-// company home page
-
-// logout page 
-// app.get("/logout2", (req, res) => {
-//   req.logout(function (err) {
-//     if (err) {
-//       return next(err);
-//     }
-//     res.redirect("/");
-//   });
-// });
-
-// user being authenticated using O AUTH
-// app.get("/explore2", (req, res) => {
-//   console.log(req.user);
-//   if (req.isAuthenticated()) {
-//     res.render("explore2");
-//   } else {
-//     res.redirect("/login2");
-//   }
-// });
-
-// signing up with Google
-// app.get(
-//   "/auth/google",
-//   passport.authenticate("google", {
-//     scope: ["profile", "email"],
-//   })
-// );
-
-// user after being authenticated using O AUTH
-// app.get(
-//   "/auth/google/explore",
-//   passport.authenticate("google", {
-//     successRedirect: "/companydetails",
-//     failureRedirect: "/login",
-//   })
-// );
-
-// logout page
-// app.get("/logout2", (req, res) => {
-//   req.logout((err) => {
-//     if (err) console.log(err);
-//     res.redirect("/");
-//   });
-// });
-
-// login with password
-// app.post(
-//   "/login2",
-//   passport.authenticate("local", {
-//     successRedirect: "/explore2",
-//     failureRedirect: "/login2",
-//   })
-// );
 
 app.post("/login2",
 
@@ -520,87 +345,6 @@ app.post("/register2", async (req, res) => {
     console.log(err);
   }
 });
-
-
-// manual registration verification using password
-// passport.use(
-//   "local",
-//   new Strategy(async function verify(email, password, cb) {
-//     try {
-//       const result = await db.query("SELECT * FROM recruiter WHERE email = $1 ", [
-//         email,
-//       ]);
-//       if (result.rows.length > 0) {
-//         const user = result.rows[0];
-//         const storedHashedPassword = user.password;
-//         bcrypt.compare(password, storedHashedPassword, (err, valid) => {
-//           if (err) {
-//             //Error with password check
-//             console.error("Error comparing passwords:", err);
-//             return cb(err);
-//           } else {
-//             if (valid) {
-//               //Passed password check
-//               return cb(null, user);
-//             } else {
-//               //Did not pass password check
-//               return cb(null, false);
-//             }
-//           }
-//         });
-//       } else {
-//         return cb("User not found");
-//       }
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   })
-// );
-
-// O AUTH verification 
-// passport.use(
-//   "google",
-//   new GoogleStrategy(
-//     {
-//       clientID: process.env.GOOGLE_CLIENT_ID,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//       callbackURL: "http://localhost:3000/auth/google/explore2",
-//       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
-//     },
-//     async (accessToken, refreshToken, profile, cb) => {
-
-//       try {
-//         console.log(profile);
-//         const result = await db.query("SELECT * FROM recruiter WHERE email = $1", [
-//           profile.email,
-//         ]);
-//         if (result.rows.length === 0) {
-//           const newUser = await db.query(
-//             "INSERT INTO recruiter (email, password) VALUES ($1, $2)",
-//             [profile.email, "google"]
-//           );
-//           return cb(null, newUser.rows[0]);
-//         } else {
-//           //Already existing 
-//           return cb(null, result.rows[0]);
-//         }
-//       } catch (err) {
-//         return cb(err);
-//       }
-//     }
-//   )
-// );
-
-// passport.serializeUser((user, cb) => {
-//   cb(null, user);
-// });
-
-// passport.deserializeUser((user, cb) => {
-//   cb(null, user);
-// });
-
-
-
 
 
 // COMPANY DETAILS POST REQUEST
@@ -891,8 +635,10 @@ app.post('/companyupload/:email', upload.single('image'), async (req, res) => {
     console.log("File name: " + fileName);
     const result = await db.query('UPDATE company_details SET profile_photo = $1 WHERE email = $2;',
       [fileName, email]);
+      console.log( fileName + "is inserted into company_details")
       const result1 = await db.query('UPDATE internship_post SET profile_photo = $1 WHERE email = $2;',
-      [fileName, email]);
+      [fileName, email]); 
+      console.log( fileName + "is inserted into internship_post")
     res.status(201).json({ message: 'File uploaded successfully', imageName: fileName });
   
   } catch (error) {
