@@ -1,5 +1,4 @@
-
-//packages
+// packages
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -10,15 +9,16 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
 import session from "express-session";
 import env from "dotenv";
-import { Client } from "pg";
 
-//middleware, port, salt rounds for encryption 
+// Initialize environment variables
+env.config();
+
+// Initialize app and other variables
 const app = express();
 const port = 5000;
 const saltRounds = 10;
-env.config();
 
-// session creation 
+// Middleware, session, and body parsing setup
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -28,15 +28,14 @@ app.use(
   cors(),
   express.json()
 );
-
-// body parsers
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+// PostgreSQL connection setup
+const { Client } = pg;
 const db = new Client({
   connectionString: process.env.PG_DATABASE_URL,
   ssl: {
@@ -46,10 +45,10 @@ const db = new Client({
 
 db.connect();
 
+// Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
-
 
 
 //   P  O  S  T         R  E Q  U  E  S  T  S
