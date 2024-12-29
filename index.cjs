@@ -10,6 +10,7 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
 import session from "express-session";
 import env from "dotenv";
+import { Client } from "pg";
 
 //middleware, port, salt rounds for encryption 
 const app = express();
@@ -35,7 +36,7 @@ app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
 
-const { Client } = require('pg'); // Already imported
+
 const db = new Client({
   connectionString: process.env.PG_DATABASE_URL,
   ssl: {
