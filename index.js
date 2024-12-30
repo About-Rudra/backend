@@ -34,10 +34,23 @@ app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
 
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+
+app.use(session({
+  store: new pgSession({
+    pool: pool, // Use the same pool for the session
+  }),
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+}));
+
+
 // PostgreSQL connection setup
 const { Client } = pg;
 const db = new Client({
-  connectionString: process.env.PG_DATABASE_URL,
+  connectionString: 'postgresql://vrittihubdb_user:9kyAXfksvCTm4DIUlk7aYWAaZjxw57ph@dpg-ctoeahhopnds73fhb790-a.oregon-postgres.render.com/vrittihubdb',
   ssl: {
     rejectUnauthorized: false,
   },
