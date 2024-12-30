@@ -15,7 +15,7 @@ env.config();
 
 // Initialize app and other variables
 const app = express();
-const port = 5000;
+const port = 5432;
 const saltRounds = 10;
 
 // Middleware, session, and body parsing setup
