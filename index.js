@@ -34,7 +34,6 @@ app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
 
-const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 
 app.use(session({
