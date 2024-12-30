@@ -34,7 +34,8 @@ app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
 
-const pgSession = require('connect-pg-simple')(session);
+import pgSession from 'connect-pg-simple';
+const store = pgSession(session);
 
 app.use(session({
   store: new pgSession({
