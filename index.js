@@ -42,6 +42,7 @@ const db = new Client({
     rejectUnauthorized: false,
   },
 });
+console.log('Connecting to DB:', process.env.PG_DATABASE_URL);
 
 db.connect();
 
