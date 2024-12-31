@@ -9,6 +9,7 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
 import session from "express-session";
 import env from "dotenv";
+import connectPgSimple from "connect-pg-simple";
 
 // Initialize environment variables
 env.config();
@@ -18,46 +19,38 @@ const app = express();
 const port = 5432;
 const saltRounds = 10;
 
-// Middleware, session, and body parsing setup
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-  }),
-  cors(),
-  express.json()
-);
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-import pgSession from 'connect-pg-simple';
-const store = pgSession(session);
-
-app.use(session({
-  store: new pgSession({
-    pool: pool, // Use the same pool for the session
-  }),
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-}));
-
-
 // PostgreSQL connection setup
-const { Client } = pg;
-const db = new Client({
-  connectionString: 'postgresql://vrittihubdb_user:9kyAXfksvCTm4DIUlk7aYWAaZjxw57ph@dpg-ctoeahhopnds73fhb790-a.oregon-postgres.render.com/vrittihubdb',
+const { Pool } = pg;
+const pool = new Pool({
+  connectionString: process.env.PG_DATABASE_URL,
   ssl: {
     rejectUnauthorized: false,
   },
 });
-console.log('Connecting to DB:', process.env.PG_DATABASE_URL);
+console.log("Connecting to DB:", process.env.PG_DATABASE_URL);
 
-db.connect();
+// Middleware, session, and body parsing setup
+app.use(
+  cors(),
+  express.json(),
+  bodyParser.urlencoded({ extended: true }),
+  express.static("public")
+);
+
+const pgSession = connectPgSimple(session);
+app.use(
+  session({
+    store: new pgSession({
+      pool: pool, // Use the same pool for the session
+    }),
+    secret: process.env.SESSION_SECRET || "default-secret-key",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Start the server
 app.listen(port, () => {
